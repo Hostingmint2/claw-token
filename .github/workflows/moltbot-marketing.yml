@@ -2,7 +2,7 @@ name: Moltbot marketing — scheduled post
 
 on:
   schedule:
-    - cron: '0 12 * * *'   # daily at 12:00 UTC (edit as needed)
+    - cron: '*/5 * * * *'   # every 5 minutes (respect cooldown in script)
   workflow_dispatch: {}
 
 jobs:
@@ -17,18 +17,23 @@ jobs:
           node-version: '18'
       - name: Install deps
         run: npm ci
-      - name: Dry-run or post via gateway/telegram
+      - name: Run marketing poster (dry-run + live if secrets present)
         env:
           GATEWAY_URL: ${{ secrets.GATEWAY_URL }}
           GATEWAY_TOKEN: ${{ secrets.GATEWAY_TOKEN }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          MARKETING_COOLDOWN_SECONDS: 300
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # If TELEGRAM_BOT_TOKEN+CHAT_ID are set, post to Telegram; otherwise post to Moltbot gateway if configured.
           node scripts/moltbot-marketing.js --dry
+          # If repository secrets are set, run live post. The script enforces cooldown and updates marketing/last_post.json.
           if [ -n "${{ secrets.GATEWAY_TOKEN }}" ] || ( [ -n "${{ secrets.TELEGRAM_BOT_TOKEN }}" ] && [ -n "${{ secrets.TELEGRAM_CHAT_ID }}" ] ); then
-            echo "Running live post (ensure secrets are set)";
+            echo "Secrets present — attempting live post (script enforces cooldown)";
+            # persist credentials so git push from script works
+            git config --global user.email "actions@github.com"
+            git config --global user.name "github-actions[bot]"
             node scripts/moltbot-marketing.js --post || true;
           else
-            echo "Secrets not provided — kept dry.";
+            echo "No POST secrets set — only dry-run executed.";
           fi

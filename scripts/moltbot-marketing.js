@@ -80,6 +80,25 @@ function parseArgs() {
   return out;
 }
 
+import fs from 'fs';
+import { execSync } from 'child_process';
+
+const LAST_POST_PATH = './marketing/last_post.json';
+
+function readLastPost() {
+  try {
+    const raw = fs.readFileSync(LAST_POST_PATH, 'utf8');
+    return JSON.parse(raw);
+  } catch (e) {
+    return { ts: 0, message: '' };
+  }
+}
+
+function writeLastPost(obj) {
+  fs.mkdirSync('./marketing', { recursive: true });
+  fs.writeFileSync(LAST_POST_PATH, JSON.stringify(obj, null, 2));
+}
+
 async function main() {
   const args = parseArgs();
   const hashtags = args.hashtags || pickHashtags(4);
@@ -91,24 +110,58 @@ async function main() {
   console.log(message);
   console.log('\nChannel:', args.channel, 'dry:', args.dry);
 
+  // cooldown logic (default 300s)
+  const cooldownSeconds = Number(process.env.MARKETING_COOLDOWN_SECONDS || 300);
+  const last = readLastPost();
+  const now = Math.floor(Date.now() / 1000);
+  const elapsed = now - (last.ts || 0);
+  if (!args.dry && elapsed < cooldownSeconds) {
+    console.log(`Skipping post — cooldown in effect (${elapsed}s elapsed, need ${cooldownSeconds}s).`);
+    return;
+  }
+
   if (args.dry) return console.log('\nDry run — nothing posted.');
+
+  let posted = false;
+  let result = null;
 
   if (args.channel === 'telegram') {
     const token = defaults.telegramToken;
     const chat = defaults.telegramChat;
     if (!token || !chat) return console.error('TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID required to post to Telegram.');
-    const r = await postTelegram(token, chat, message);
-    console.log('Telegram response:', r);
-    return;
+    result = await postTelegram(token, chat, message);
+    console.log('Telegram response:', result);
+    posted = result && (result.status === 200 || result.status === '200');
+  } else {
+    const payload = { type: 'announce', channel: 'telegram', body: message, meta: { hashtags, submolts: args.submolts } };
+    try {
+      result = await postToGateway(payload);
+      console.log('Gateway response:', result.status, result.body);
+      posted = result && result.status && result.status >= 200 && result.status < 300;
+    } catch (err) {
+      console.error('Failed to post to gateway:', err.message || err);
+    }
   }
 
-  // default: gateway announce
-  const payload = { type: 'announce', channel: 'telegram', body: message, meta: { hashtags, submolts: args.submolts } };
-  try {
-    const r = await postToGateway(payload);
-    console.log('Gateway response:', r.status, r.body);
-  } catch (err) {
-    console.error('Failed to post to gateway:', err.message || err);
+  if (posted) {
+    const record = { ts: now, message: message, channel: args.channel, result };
+    writeLastPost(record);
+
+    // If running in CI with GITHUB_TOKEN, commit the updated last_post.json so workflow respects cooldown.
+    if (process.env.GITHUB_ACTIONS && process.env.GITHUB_TOKEN) {
+      try {
+        execSync('git config user.email "actions@github.com"');
+        execSync('git config user.name "github-actions[bot]"');
+        execSync('git add ' + LAST_POST_PATH);
+        execSync('git commit -m "chore(marketing): update last_post after live announcement" || true');
+        execSync('git push origin HEAD:master');
+        console.log('Committed last_post.json to repo (CI).');
+      } catch (e) {
+        console.warn('Failed to commit last_post.json from CI:', e.message || e);
+      }
+    }
+  } else {
+    console.log('Post not confirmed — not updating last_post.json.');
   }
 }
 
