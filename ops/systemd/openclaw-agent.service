@@ -1,0 +1,15 @@
+[Unit]
+Description=OpenClaw Agent
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/claw/claw-token
+ExecStart=/usr/bin/npm run start-openclaw-agent
+Restart=on-failure
+RestartSec=5
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target

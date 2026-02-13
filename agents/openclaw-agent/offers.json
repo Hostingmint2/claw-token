@@ -1,0 +1,12 @@
+[
+  {
+    "id": "offer-demo-1",
+    "buyer": "BuyerPublicKey1111111111111111111111111111111",
+    "seller": "SellerPublicKey2222222222222222222222222222222",
+    "amount": "1000000",
+    "tokenMint": "So11111111111111111111111111111111111111112",
+    "status": "funded",
+    "expiry": null,
+    "fulfilled": false
+  }
+]

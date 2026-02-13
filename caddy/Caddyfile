@@ -1,0 +1,9 @@
+# Placeholder Caddyfile. Replace 'claw.example.com' with your real domain
+claw.example.com {
+  reverse_proxy /api/* 127.0.0.1:9800
+  reverse_proxy /auth/* 127.0.0.1:8790
+  encode zstd gzip
+  log {
+    output file /data/access.log
+  }
+}

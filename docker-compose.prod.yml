@@ -1,0 +1,103 @@
+version: '3.8'
+services:
+  postgres:
+    image: postgres:15
+    restart: unless-stopped
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-openclaw}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  vault:
+    image: vault:1.14.0
+    environment:
+      VAULT_DEV_ROOT_TOKEN_ID: "root"
+    command: server -dev -dev-root-token-id=root
+    ports:
+      - "8200:8200"
+    volumes:
+      - vault-data:/vault/data
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+
+  openclaw-agent:
+    build:
+      context: ./agents/openclaw-agent
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://127.0.0.1:9800/health || exit 1"]
+      interval: 15s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - SIGNER_MODE=${SIGNER_MODE}
+      - VAULT_URL=${VAULT_URL}
+      - VAULT_KEY_ID=${VAULT_KEY_ID}
+      - ACCESS_JWT_SECRET=${ACCESS_JWT_SECRET}
+      - OPENCLAW_EXECUTE=${OPENCLAW_EXECUTE}
+    depends_on:
+      - postgres
+      - vault
+
+  access-server:
+    image: node:18
+    working_dir: /app
+    volumes:
+      - ./:/app
+    command: sh -c "cd server && npm install --no-audit --no-fund && node access-server.js"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://127.0.0.1:8790/health || exit 1"]
+      interval: 15s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+    environment:
+      - ACCESS_JWT_SECRET=${ACCESS_JWT_SECRET}
+      - RPC_URL=${RPC_URL}
+    ports:
+      - '8790:8790'
+    depends_on:
+      - postgres
+
+  watchtower:
+    image: node:18
+    working_dir: /app
+    volumes:
+      - ./:/app
+    command: sh -c "cd agents/watchtower && npm install --no-audit --no-fund && node watchtower.js"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://127.0.0.1:9801/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+    depends_on:
+      - postgres
+
+volumes:
+  pgdata: {}
+  vault-data: {}
+  caddy_data: {}
+  caddy_config: {}
+
+# Reminder: Fill environment variables in a .env or export in deploy environment, set your domain in Caddyfile and ensure DNS points to the host.

@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ClawChat (E2EE)</title>
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self' ws: wss: http: https:; base-uri 'none'; frame-ancestors 'none'; form-action 'self'"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="page">
+      <section class="card">
+        <h1>ClawChat</h1>
+        <p class="note">
+          Token-gated, end-to-end encrypted chat. The server only relays ciphertext.
+        </p>
+
+        <div class="chat-grid mt1">
+          <div class="controls card" style="padding:1rem;">
+            <h3>Connection</h3>
+            <p><strong>Status:</strong> <span id="status">Not connected</span></p>
+            <p><strong>Wallet:</strong> <span id="wallet">—</span></p>
+            <p><strong>Tier:</strong> <span id="tier">—</span></p>
+
+            <div class="hero-actions mt1">
+              <button id="btn-login" type="button" class="full">Login (Phantom)</button>
+              <button id="btn-connect" type="button" class="ghost full">Connect chat</button>
+            </div>
+
+            <div class="form mt1">
+              <label>
+                Telegram login code (optional)
+                <input id="tg-code" placeholder="Get a code from the Telegram bot" />
+              </label>
+              <button id="btn-tg-login" type="button" class="full">Login with Telegram code</button>
+            </div>
+
+            <hr style="opacity:0.06;margin:1rem 0;">
+
+            <h3>Peers</h3>
+            <select id="peer-select" class="full mt075"></select>
+            <div class="hero-actions mt075">
+              <button id="btn-mark-verified" type="button" class="full">Mark verified</button>
+              <button id="btn-accept-new-key" type="button" class="ghost full">Accept new key</button>
+            </div>
+          </div>
+
+          <div class="chat-area">
+            <div style="padding:0 0 0.75rem 0;">
+              <div style="display:flex;justify-content:space-between;align-items:center;gap:1rem;">
+                <div>
+                  <h2 style="margin:0">Inbox</h2>
+                  <p class="note" style="margin:0">Messages are end-to-end encrypted.</p>
+                </div>
+                <div style="text-align:right">
+                  <p style="margin:0;font-size:0.9rem;color:var(--muted)"><strong>Fingerprint:</strong> <span id="peer-fingerprint">—</span></p>
+                </div>
+              </div>
+            </div>
+            <div id="inbox" class="card" aria-live="polite"></div>
+
+            <div class="card" style="margin-top:0.75rem;padding:0.8rem;">
+              <form id="send-form" class="form" style="margin:0;">
+                <label style="margin-bottom:0.5rem;">
+                  Message
+                  <input name="message" required placeholder="Type something…" />
+                </label>
+                <div style="display:flex;gap:0.6rem;align-items:center;margin-top:0.5rem;">
+                  <button type="submit" style="flex:1">Encrypt + send</button>
+                  <label style="display:flex;align-items:center;gap:0.5rem;font-weight:600;color:var(--muted);margin:0">
+                    <input type="checkbox" id="pgp-mode" />
+                    <span style="font-weight:400">PGP</span>
+                  </label>
+                </div>
+              </form>
+              <div id="send-result" class="result" role="status"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Peers</h2>
+        <p class="note">Choose a recipient (or broadcast to all peers).</p>
+        <select id="peer-select" class="full mt075"></select>
+
+        <div class="note" id="verify-warning"></div>
+        <div class="grid mt1">
+          <div>
+            <h3>Fingerprint</h3>
+            <p id="peer-fingerprint">—</p>
+          </div>
+          <div>
+            <h3>Safety code</h3>
+            <p id="peer-safety">—</p>
+          </div>
+          <div>
+            <h3>Key status</h3>
+            <p id="peer-key-status">—</p>
+          </div>
+        </div>
+
+        <div class="hero-actions actions">
+          <button id="btn-mark-verified" type="button">Mark verified</button>
+          <button id="btn-accept-new-key" type="button" class="ghost">Accept new key</button>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Send</h2>
+        <form id="send-form" class="form">
+          <label>
+            Message
+            <input name="message" required placeholder="Type something…" />
+          </label>
+          <button type="submit">Encrypt + send</button>
+            <div class="mt1">
+              <label style="display: flex; align-items: center; gap: 0.5rem;">
+                <input type="checkbox" id="pgp-mode" />
+                <span>PGP mode (encrypt/sign)</span>
+              </label>
+            </div>
+        </form>
+        <div id="send-result" class="result" role="status"></div>
+      </section>
+
+      <section class="card">
+        <h2>Inbox</h2>
+        <div id="inbox" class="result prewrap"></div>
+      </section>
+
+      <section class="card">
+        <h2>Security notes (MVP)</h2>
+        <ul>
+          <li>Encryption is done in your browser using NaCl box (X25519 + XSalsa20-Poly1305) and Double Ratchet for forward secrecy.</li>
+          <li>The relay server can’t read messages, but it can still see metadata (who/when).</li>
+          <li>Verify the Safety code with your peer before trusting them.</li>
+          <li>Double Ratchet and X3DH provide Signal-tier cryptographic security for all sessions.</li>
+        </ul>
+      </section>
+    </main>
+
+      <script src="./vendor/openpgp.min.js" defer></script>
+    <script src="./vendor/nacl-fast.min.js" defer></script>
+    <script src="./vendor/nacl-util.min.js" defer></script>
+    <script src="./chat.js" defer></script>
+  </body>
+</html>

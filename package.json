@@ -1,0 +1,47 @@
+{
+  "name": "claw-token",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "create-mint": "node ./scripts/create-mint.js",
+    "mint-to-treasury": "node ./scripts/mint-to-treasury.js",
+    "vendor-crypto": "node ./scripts/vendor-crypto.js",
+    "start-claim-server": "node ./server/claim-server.js",
+    "start-access-server": "node ./server/access-server.js",
+    "start-chat-server": "node ./server/chat-server.js",
+    "start-telegram-bot": "node ./server/telegram-bot.js",
+    "start-openclaw-agent": "node ./agents/openclaw-agent/agent.js",
+    "start-openclaw-agent:detached": "node ./scripts/run-detached.js node ./agents/openclaw-agent/agent.js",
+    "start-watchtower": "node ./agents/watchtower/watchtower.js",
+    "start-watchtower:detached": "node ./scripts/run-detached.js node ./agents/watchtower/watchtower.js",
+    "start-access-server:detached": "node ./scripts/run-detached.js node ./server/access-server.js",
+    "start-access-server:detached-demo": "cross-env ACCESS_JWT_SECRET=demo-secret node ./scripts/run-detached.js node ./server/access-server.js",
+    "stop-detached": "node ./scripts/stop-detached.js",
+    "demo-escrow": "node ./scripts/demo-escrow-demo.js",
+    "start-all": "concurrently \"npm:start-access-server\" \"npm:start-openclaw-agent\" \"npm:start-watchtower\" --kill-others",
+    "start-all:detached": "npm run start-access-server:detached && npm run start-openclaw-agent:detached && npm run start-watchtower:detached"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.0",
+    "cross-env": "^7.0.3"
+  },
+  "dependencies": {
+    "@sentry/node": "^7.120.4",
+    "@solana/spl-token": "^0.4.8",
+    "@solana/web3.js": "^1.98.0",
+    "axios": "^1.13.5",
+    "bs58": "^5.0.0",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "helmet": "^7.2.0",
+    "jsonwebtoken": "^9.0.3",
+    "lowdb": "^6.1.1",
+    "pg": "^8.18.0",
+    "pg-boss": "^12.9.0",
+    "proper-lockfile": "^4.1.2",
+    "telegraf": "^4.16.3",
+    "tweetnacl": "^1.0.3",
+    "tweetnacl-util": "^0.15.1",
+    "ws": "^8.18.0"
+  }
+}

@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Buy Claw Token</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="page">
+      <header class="hero">
+        <div>
+          <p class="badge">Buy (OPSEC-first)</p>
+          <h1>Get CLAW</h1>
+          <p class="sub">
+            This site does not process cards or gift cards. For security and compliance, it redirects
+            you to regulated on-ramps to buy SOL/USDC, then you swap to CLAW.
+          </p>
+          <div class="hero-actions">
+            <a class="primary" href="./index.html">Back</a>
+            <a class="ghost" href="#steps">How it works</a>
+          </div>
+        </div>
+      </header>
+
+      <section class="card" id="steps">
+        <h2>How it works</h2>
+        <ol>
+          <li>Buy <strong>SOL</strong> (fees) or <strong>USDC</strong> (stable) using a card on a regulated on-ramp.</li>
+          <li>Send it to your own Solana wallet (Phantom, etc.).</li>
+          <li>Swap SOL/USDC → <strong>CLAW</strong> using a DEX aggregator.</li>
+        </ol>
+        <p class="note">
+          OPSEC note: card payments reduce anonymity. For high-risk users, prefer Tor Browser, avoid
+          reusing wallets tied to your identity, and don’t mix browsing/profiles.
+        </p>
+      </section>
+
+      <section class="card">
+        <h2>Card on-ramp (recommended)</h2>
+        <p class="note">
+          These buttons open the provider in a new tab. This avoids embedding third-party scripts on
+          this page (less fingerprinting).
+        </p>
+        <div class="hero-actions actions">
+          <a class="primary" id="btn-onramp" href="#">Open on-ramp</a>
+          <a class="ghost" id="btn-onramp-alt" href="#">Open alternative</a>
+        </div>
+        <p class="note" id="onramp-hint"></p>
+      </section>
+
+      <section class="card">
+        <h2>Swap to CLAW</h2>
+        <p class="note">Use a DEX aggregator after you have SOL/USDC in your wallet.</p>
+        <div class="hero-actions actions">
+          <a class="primary" id="btn-swap" href="#">Open swap</a>
+        </div>
+        <p class="note" id="swap-hint"></p>
+      </section>
+
+      <section class="card">
+        <h2>Gift cards</h2>
+        <p class="note">
+          Gift-card-to-crypto is a high-fraud rail. For security and compliance, this site does not
+          redeem gift cards. If you want to support gift cards, use a licensed third-party partner
+          and link out.
+        </p>
+
+        <div class="hero-actions actions">
+          <a class="primary" id="btn-giftcards" href="#">Open gift card partner</a>
+        </div>
+        <p class="note" id="giftcard-hint">
+          Rates vary by card type and risk controls. Expect fraud screening and possible identity checks.
+        </p>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <p>Privacy-first by design: no embedded payment scripts.</p>
+    </footer>
+
+    <script src="./buy.js" defer></script>
+  </body>
+</html>

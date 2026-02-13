@@ -1,0 +1,41 @@
+version: '3.8'
+services:
+  postgres:
+    image: postgres:15
+    restart: unless-stopped
+    environment:
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - '5432:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  vault-sim:
+    image: node:18-alpine
+    working_dir: /app
+    volumes:
+      - ./:/app
+    command: sh -c 'cd agents/openclaw-agent && node vault-sim.js'
+    ports:
+      - '8200:8200'
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+
+volumes:
+  pgdata: {}
+  caddy_data: {}
+  caddy_config: {}
+
+# NOTE: This compose focuses on infra for Postgres, Vault-sim and Caddy. App services
+# (openclaw-agent, access-server, watchtower) can be run locally (recommended) during
+# initial staging. To fully containerize, add service definitions for each Node app
+# using existing Dockerfiles in the repo.
