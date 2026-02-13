@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Claw Escrow</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="page">
+      <header class="hero">
+        <p class="badge">Escrow — Secure & Private</p>
+        <h1>Claw Escrow</h1>
+        <p class="sub">Create and manage privacy-first, on-chain-friendly escrows (simulated by default).</p>
+        <div class="hero-actions">
+          <a class="ghost" href="./index.html">Home</a>
+          <button id="btn-login" class="primary">Login (Phantom)</button>
+          <div style="display:flex;gap:0.5rem;align-items:center">
+            <input id="tg-code" placeholder="Telegram code (optional)" />
+            <button id="btn-tg-login" class="ghost">Use Telegram code</button>
+          </div>
+        </div>
+      </header>
+
+      <section class="card">
+        <h2>Create offer</h2>
+        <form id="create-form" class="form">
+          <label>
+            Description
+            <input name="description" placeholder="What is being escrowed (e.g., domain, service)" />
+          </label>
+          <label>
+            Item type
+            <select name="itemType">
+              <option value="token">Token (on-chain)</option>
+              <option value="generic">Generic / Off-chain</option>
+            </select>
+          </label>
+          <label>
+            Seller wallet (base58)
+            <input name="seller" placeholder="Seller public key (optional for generic)" />
+          </label>
+          <label>
+            Amount (base units — for tokens)
+            <input name="amount" placeholder="Amount in base units (token)" />
+          </label>
+          <label>
+            Token mint (only for token type)
+            <input name="tokenMint" placeholder="Token mint" value="So11111111111111111111111111111111111111112" />
+          </label>
+          <label>
+            Fee percent (platform fee)
+            <input name="feePercent" placeholder="e.g., 1.5" value="1.5" />
+          </label>
+          <button type="submit" class="full">Create offer</button>
+        </form>
+        <div id="create-result" class="result"></div>
+      </section>
+
+      <section class="card">
+        <h2>Offers</h2>
+        <div id="offers-list" class="grid"></div>
+      </section>
+    </main>
+
+    <script src="./app.js" defer></script>
+    <script src="./escrow.js" defer></script>
+  </body>
+</html>

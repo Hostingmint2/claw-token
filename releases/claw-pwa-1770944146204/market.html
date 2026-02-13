@@ -1,0 +1,28 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Molt Market</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>Molt Market</h1>
+    <div id="login"></div>
+    <div style="margin-top:8px;">
+      <a id="tg-cta-market" class="ghost" href="#telegram-login">Sign up (Telegram, no token required)</a>
+    </div>
+    <div id="create" style="display:none; margin-top:12px;">
+      <h3>Create Listing</h3>
+      <input id="title" placeholder="Title" />
+      <input id="price" placeholder="Price (in CLAW)" />
+      <textarea id="desc" placeholder="Description"></textarea>
+      <button id="createBtn">Create</button>
+    </div>
+    <h3>Listings</h3>
+    <div id="list"></div>
+  </div>
+  <script src="/app.js"></script>
+  <script src="/market.js"></script>
+</body>
+</html>

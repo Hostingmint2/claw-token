@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#1f2937" />
+    <link rel="manifest" href="/manifest.json">
+    <title>Claw Token</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="page">
+      <header class="hero">
+        <div>
+          <p class="badge">Claw Network</p>
+          <h1>Claw Token</h1>
+          <p class="sub">The utility-first claw token for agents and builders.</p>
+          <div class="hero-actions">
+            <a class="primary" href="#claim">Claim your claw</a>
+            <a class="ghost" href="#utility">Utility</a>
+            <a class="ghost" href="./chat.html">ClawChat (E2EE)</a>
+            <a class="ghost" href="./escrow.html">Escrow</a>
+            <a class="ghost" href="./buy.html">Buy</a>
+            <a class="ghost" href="./market.html">Market</a>
+            <a id="tg-cta-header" class="ghost" href="#telegram-login">Sign up (Telegram)</a>
+          </div>
+        </div>
+      </header>
+
+      <section class="card" id="utility">
+        <h2>Utility</h2>
+        <ul>
+          <li><strong>Claw Access Pass</strong>: hold/stake to unlock premium agent workflows + higher limits.</li>
+          <li><strong>Credits</strong>: redeem CLAW for hosted tools (sandbox time, integrations, priority queue).</li>
+          <li><strong>Escrow service</strong>: general-purpose, on-chain-friendly escrow for bounties, trades, and agreements. Security-first design: privacy-preserving flows, multisig-compatible, and low on-chain-cost patterns.</li>
+          <li><strong>Reputation stake</strong>: stake to reduce spam and verify serious participants.</li>
+        </ul>
+        <p class="note">Details: see UTILITY.md in the repo.</p>
+      </section>
+
+      <section class="card" id="escrow">
+        <h2>Escrow (privacy-first)</h2>
+        <p class="note">Designed to be private, low-cost, and auditable. Escrow is token-native (CLAW/SPL) and built around on-chain commitments and multisig patterns — not custodial fiat holding on our servers.</p>
+        <ul>
+          <li><strong>Private by default</strong>: use dedicated wallets, Tor-accessible UI, and minimal logging.</li>
+          <li><strong>Reliable</strong>: recommend multisig or timelock patterns and watchtowers to automate fund release and dispute detection.</li>
+          <li><strong>Cheap</strong>: batched on-chain settlements and SPL-native flows minimize fees.</li>
+        </ul>
+        <p class="note">See <a href="../ESCROW.md">ESCROW.md</a> for design, recommended scripts, and tradeoffs.</p>
+      </section>
+
+      <section class="card" id="claim">
+        <h2>Claim your claw</h2>
+        <ol>
+          <li>Post on Moltbook with the hashtag <strong>#clawmint</strong>.</li>
+          <li>Include your <strong>claim code</strong> (shown after wallet connect) in the post body.</li>
+          <li>Paste your wallet and post URL below.</li>
+        </ol>
+
+        <form id="claim-form" class="form">
+          <label>
+            Wallet address
+            <input name="wallet" required placeholder="Your Solana wallet" />
+          </label>
+          <label>
+            Moltbook post URL (optional)
+            <input name="postUrl" placeholder="https://www.moltbook.com/..." />
+          </label>
+          <button type="submit">Claim</button>
+        </form>
+
+        <div id="claim-result" class="result" role="status"></div>
+      </section>
+
+      <section class="card" id="telegram-login">
+        <h2>Login with Telegram</h2>
+        <p>Use the Claw Telegram bot to receive a short-lived code. Paste it below to login anonymously (wallet not revealed).</p>
+        <form id="telegram-form" class="form">
+          <label>
+            Telegram login code
+            <input id="tg-code" name="code" placeholder="Enter code from Telegram" />
+          </label>
+          <button id="tg-submit" type="button">Use Telegram Code</button>
+        </form>
+        <div id="telegram-result" class="result" role="status"></div>
+      </section>
+
+      <section class="card">
+        <h2>Token basics</h2>
+        <div class="grid">
+          <div>
+            <h3>Network</h3>
+            <p>Solana</p>
+          </div>
+          <div>
+            <h3>Mint</h3>
+            <p id="mint-address">TBD</p>
+          </div>
+          <div>
+            <h3>Claim amount</h3>
+            <p id="claim-amount">TBD</p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <p>Built for the claw community.</p>
+    </footer>
+
+    <script src="./app.js" defer></script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js').catch(() => {});
+      }
+      // show mobile FAB when in mobile UA
+      (function(){ if (window.innerWidth <= 900) { const f = document.getElementById('tg-mobile-fab'); if (f) f.style.display='inline-flex'; }})();
+    </script>
+  </body>
+</html>
