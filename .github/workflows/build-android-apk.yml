@@ -28,16 +28,13 @@ jobs:
           npm ci
           npm run build-pwa
 
-      - name: Install Bubblewrap
-        run: npm i -g @bubblewrap/cli
-
-      - name: Create TWA project (bubblewrap)
+      - name: Create TWA project (bubblewrap via npx)
         env:
           PWA_URL: ${{ steps.pwa_url.outputs.pwa_url || 'https://hostingmint2.github.io/claw-token-site/' }}
         run: |
-          # initialize TrustWebActivity project (non-interactive)
+          # initialize TrustWebActivity project (non-interactive) using npx
           mkdir -p twa-out
-          npx bubblewrap init --manifest=https://hostingmint2.github.io/claw-token-site/manifest.json --output=twa-out --manifestUrl=https://hostingmint2.github.io/claw-token-site/manifest.json --packageId=ai.openclaw.clawtoken --display=ClawPWA || true
+          npx @bubblewrap/cli@latest init --manifest=https://hostingmint2.github.io/claw-token-site/manifest.json --output=twa-out --manifestUrl=https://hostingmint2.github.io/claw-token-site/manifest.json --packageId=ai.openclaw.clawtoken --display=ClawPWA || true
           cd twa-out
           # generate debug keystore so Gradle can build (debug signing)
           keytool -genkeypair -v -keystore debug.keystore -storepass android -keypass android -alias debug -keyalg RSA -validity 10000 -dname "CN=debug" || true
