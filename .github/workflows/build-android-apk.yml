@@ -1,0 +1,80 @@
+name: Build Android APK (TWA)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Build PWA
+        run: |
+          npm ci
+          npm run build-pwa
+
+      - name: Install Bubblewrap
+        run: npm i -g @bubblewrap/cli
+
+      - name: Create TWA project (bubblewrap)
+        env:
+          PWA_URL: ${{ steps.pwa_url.outputs.pwa_url || 'https://hostingmint2.github.io/claw-token-site/' }}
+        run: |
+          # initialize TrustWebActivity project (non-interactive)
+          mkdir -p twa-out
+          npx bubblewrap init --manifest=https://hostingmint2.github.io/claw-token-site/manifest.json --output=twa-out --manifestUrl=https://hostingmint2.github.io/claw-token-site/manifest.json --packageId=ai.openclaw.clawtoken --display=ClawPWA || true
+          cd twa-out
+          # generate debug keystore so Gradle can build (debug signing)
+          keytool -genkeypair -v -keystore debug.keystore -storepass android -keypass android -alias debug -keyalg RSA -validity 10000 -dname "CN=debug" || true
+
+      - name: Build Android APK (Gradle)
+        run: |
+          cd twa-out/android
+          ./gradlew assembleRelease --no-daemon
+        working-directory: twa-out/android
+
+      - name: Find APK
+        id: find-apk
+        run: |
+          find twa-out -type f -name "*-release.apk" -print -quit
+
+      - name: Create GitHub Release (draft)
+        id: create_release
+        uses: actions/create-release@v1
+        with:
+          tag_name: claw-pwa-${{ github.run_id }}
+          release_name: Claw PWA APK ${{ github.run_id }}
+          body: "Automated APK build (TWA) from PWA."
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload APK to Release
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./twa-out/android/app/build/outputs/apk/release/app-release.apk
+          asset_name: claw-pwa.apk
+          asset_content_type: application/vnd.android.package-archive
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload APK as workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: claw-pwa-apk
+          path: ./twa-out/android/app/build/outputs/apk/release/app-release.apk
