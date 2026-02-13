@@ -12,6 +12,15 @@ node_modules/
 site/releases/*
 !site/releases/latest.json
 
+# Sensitive keys / local secrets
+keypair.json
+agents/openclaw-agent/demo-keypair.json
+agents/openclaw-agent/.env
+server/.env
+server/.env.local
+server/.telegram_token
+local-openclaw.json
+
 # Environment and OS files
 .env
 .env.*
