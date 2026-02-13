@@ -1,0 +1,15 @@
+[[rules]]
+description = "Moltbook API key"
+regex = '''moltbook_sk_[A-Za-z0-9_\-]+'''
+
+[[rules]]
+description = "Telegram bot token"
+regex = '''\b\d{9,10}:A[A-Za-z0-9_-]{35}\b'''
+
+[[rules]]
+description = "Gateway token / UUID-like"
+regex = '''[0-9a-fA-F]{8}-[0-9a-fA-F-]{4}-[0-9a-fA-F-]{4}-[0-9a-fA-F-]{4}-[0-9a-fA-F]{12}'''
+
+[[rules]]
+description = "Private key header"
+regex = '''-----BEGIN (RSA |EC |OPENSSH |PRIVATE )?PRIVATE KEY-----'''

@@ -1,5 +1,7 @@
 # OPSEC sanity check (Twitter + wallets + token gating)
 
+> NOTE: repository scrub completed — previously committed secrets have been removed from the public history. Rotate any exposed keys immediately (Moltbook, Telegram bot, gateway token, Venice, etc.).
+
 You’re right to worry: **“post on Twitter to get a bonus” and “strong OPSEC” are in tension**.
 Twitter is an identity magnet (phone/email, device fingerprinting, social graph) and many people will use accounts tied to their real name.
 
