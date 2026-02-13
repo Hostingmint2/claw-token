@@ -157,25 +157,31 @@ async function main() {
     }
   }
 
+  // write diagnostic of the attempt (always write last_attempt.json)
+  const attempt = { ts: now, message: message, channel: args.channel, posted: Boolean(posted), result: result || null };
+  fs.mkdirSync('./marketing', { recursive: true });
+  fs.writeFileSync('./marketing/last_attempt.json', JSON.stringify(attempt, null, 2));
+  console.log('Wrote marketing/last_attempt.json');
+
   if (posted) {
     const record = { ts: now, message: message, channel: args.channel, result };
     writeLastPost(record);
-
-    // If running in CI with GITHUB_TOKEN, commit the updated last_post.json so workflow respects cooldown.
-    if (process.env.GITHUB_ACTIONS && process.env.GITHUB_TOKEN) {
-      try {
-        execSync('git config user.email "actions@github.com"');
-        execSync('git config user.name "github-actions[bot]"');
-        execSync('git add ' + LAST_POST_PATH);
-        execSync('git commit -m "chore(marketing): update last_post after live announcement" || true');
-        execSync('git push origin HEAD:master');
-        console.log('Committed last_post.json to repo (CI).');
-      } catch (e) {
-        console.warn('Failed to commit last_post.json from CI:', e.message || e);
-      }
-    }
   } else {
     console.log('Post not confirmed — not updating last_post.json.');
+  }
+
+  // Commit diagnostics and last_post when running in CI and GITHUB_TOKEN is present
+  if (process.env.GITHUB_ACTIONS && process.env.GITHUB_TOKEN) {
+    try {
+      execSync('git config user.email "actions@github.com"');
+      execSync('git config user.name "github-actions[bot]"');
+      execSync('git add marketing/last_attempt.json ' + (posted ? LAST_POST_PATH : ''));
+      execSync('git commit -m "ci(marketing): record last attempt (posted=' + Boolean(posted) + ')" || true');
+      execSync('git push origin HEAD:master');
+      console.log('Committed marketing diagnostics to repo (CI).');
+    } catch (e) {
+      console.warn('Failed to commit marketing diagnostics from CI:', e.message || e);
+    }
   }
 }
 
