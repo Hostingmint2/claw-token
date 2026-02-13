@@ -140,6 +140,20 @@ async function main() {
       posted = result && result.status && result.status >= 200 && result.status < 300;
     } catch (err) {
       console.error('Failed to post to gateway:', err.message || err);
+      posted = false;
+    }
+
+    // Fallback: if gateway failed and Telegram creds exist, attempt direct Telegram post
+    if (!posted && defaults.telegramToken && defaults.telegramChat) {
+      console.log('Gateway post failed — attempting Telegram fallback...');
+      try {
+        const tg = await postTelegram(defaults.telegramToken, defaults.telegramChat, message);
+        console.log('Telegram fallback response:', tg.status, JSON.stringify(tg.body).slice(0, 400));
+        posted = tg && (tg.status === 200 || tg.status === '200');
+        if (posted) result = { via: 'telegram', status: tg.status, body: tg.body };
+      } catch (err) {
+        console.error('Telegram fallback failed:', err.message || err);
+      }
     }
   }
 
