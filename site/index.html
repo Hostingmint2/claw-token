@@ -3,26 +3,38 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#1f2937" />
+    <meta name="theme-color" content="#ff3b5f" />
+    <meta name="description" content="Privacy-first SPL token, pseudonymous Telegram login, E2EE chat and private escrow (OpenClaw)." />
     <link rel="manifest" href="/manifest.json">
-    <title>Claw Token</title>
+    <title>Claw Token — privacy-first token & escrow</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
     <main class="page">
       <header class="hero">
-        <div>
-          <p class="badge">Claw Network</p>
-          <h1>Claw Token</h1>
-          <p class="sub">The utility-first claw token for agents and builders.</p>
-          <div class="hero-actions">
-            <a class="primary" href="#claim">Claim your claw</a>
-            <a class="ghost" href="#utility">Utility</a>
-            <a class="ghost" href="./chat.html">ClawChat (E2EE)</a>
-            <a class="ghost" href="./escrow.html">Escrow</a>
-            <a class="ghost" href="./buy.html">Buy</a>
-            <a class="ghost" href="./market.html">Market</a>
-            <a id="tg-cta-header" class="ghost" href="#telegram-login">Sign up (Telegram)</a>
+        <div class="hero-inner">
+          <div class="hero-left">
+            <p class="badge">Claw Network</p>
+            <h1>Claw Token</h1>
+            <p class="sub">Privacy-first SPL token, pseudonymous Telegram login, E2EE chat and private escrow for builders and agents.</p>
+            <div class="hero-actions">
+              <a class="primary" href="#claim">Claim</a>
+              <a class="ghost" href="./chat.html">ClawChat</a>
+              <a class="ghost" href="./escrow.html">Escrow</a>
+              <a id="tg-cta-header" class="primary small" href="#telegram-login">Sign up (Telegram)</a>
+            </div>
+            <p class="mt075 note">Open-source core, privacy-by-default design. Audit-ready; production hardening guides in the repo.</p>
+          </div>
+          <div class="hero-right">
+            <div class="card small-cta">
+              <h3>Get started</h3>
+              <p class="muted">PWA + E2EE chat, token-gated claims and private escrow — try the demo or self-host.</p>
+              <div style="display:flex;gap:8px;margin-top:12px">
+                <a class="ghost" href="/releases/claw-pwa-1770944311600.zip">Download APK/ZIP</a>
+                <a class="ghost" href="https://github.com/Hostingmint2/claw-token">View source</a>
+              </div>
+            </div>
           </div>
         </div>
       </header>

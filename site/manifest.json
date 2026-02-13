@@ -4,7 +4,7 @@
   "start_url": "/index.html",
   "display": "standalone",
   "background_color": "#0b1020",
-  "theme_color": "#1f2937",
+  "theme_color": "#ff3b5f",
   "description": "Privacy-first messaging and escrow with token-gated access.",
   "icons": [
     { "src": "/assets/icon-192.svg", "sizes": "192x192", "type": "image/svg+xml" },
