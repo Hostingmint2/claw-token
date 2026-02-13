@@ -1,0 +1,34 @@
+name: Moltbot marketing — scheduled post
+
+on:
+  schedule:
+    - cron: '0 12 * * *'   # daily at 12:00 UTC (edit as needed)
+  workflow_dispatch: {}
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      - name: Install deps
+        run: npm ci
+      - name: Dry-run or post via gateway/telegram
+        env:
+          GATEWAY_URL: ${{ secrets.GATEWAY_URL }}
+          GATEWAY_TOKEN: ${{ secrets.GATEWAY_TOKEN }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          # If TELEGRAM_BOT_TOKEN+CHAT_ID are set, post to Telegram; otherwise post to Moltbot gateway if configured.
+          node scripts/moltbot-marketing.js --dry
+          if [ -n "${{ secrets.GATEWAY_TOKEN }}" ] || ( [ -n "${{ secrets.TELEGRAM_BOT_TOKEN }}" ] && [ -n "${{ secrets.TELEGRAM_CHAT_ID }}" ] ); then
+            echo "Running live post (ensure secrets are set)";
+            node scripts/moltbot-marketing.js --post || true;
+          else
+            echo "Secrets not provided — kept dry.";
+          fi
