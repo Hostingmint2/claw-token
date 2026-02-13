@@ -28,9 +28,22 @@ jobs:
           npm ci
           npm run build-pwa
 
+      - name: Install Android SDK command-line tools
+        run: |
+          ANDROID_SDK_ROOT="$HOME/android-sdk"
+          mkdir -p "$ANDROID_SDK_ROOT/cmdline-tools"
+          curl -sSfLo cmdline.zip https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip
+          unzip -q cmdline.zip -d "$ANDROID_SDK_ROOT/cmdline-tools"
+          mv "$ANDROID_SDK_ROOT/cmdline-tools/cmdline-tools" "$ANDROID_SDK_ROOT/cmdline-tools/latest" || true
+          export PATH="$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$PATH"
+          yes | sdkmanager --sdk_root="$ANDROID_SDK_ROOT" "platform-tools" "platforms;android-33" "build-tools;33.0.2"
+        env:
+          JAVA_HOME: ${{ env.JAVA_HOME }}
+
       - name: Create TWA project (bubblewrap via npx)
         env:
           PWA_URL: ${{ steps.pwa_url.outputs.pwa_url || 'https://hostingmint2.github.io/claw-token-site/' }}
+          ANDROID_SDK_ROOT: ${{ runner.temp }}/android-sdk
         run: |
           # initialize TrustWebActivity project (non-interactive) using npx
           mkdir -p twa-out
@@ -40,6 +53,10 @@ jobs:
           keytool -genkeypair -v -keystore debug.keystore -storepass android -keypass android -alias debug -keyalg RSA -validity 10000 -dname "CN=debug" || true
 
       - name: Build Android APK (Gradle)
+        env:
+          ANDROID_SDK_ROOT: ${{ runner.temp }}/android-sdk
+          ANDROID_HOME: ${{ runner.temp }}/android-sdk
+          PATH: ${{ runner.temp }}/android-sdk/platform-tools:${{ env.PATH }}
         run: |
           cd twa-out/android
           ./gradlew assembleRelease --no-daemon
